@@ -9,9 +9,22 @@ initializeApp();
 
 const firestore = new Firestore();
 const storage = new Storage();
-
 const rawVideoBucketName = "pkmn-yt-raw-videos";
+const videoCollectionId = "videos";
 
+export interface Video {
+  id?: string,
+  uid?: string,
+  filename?: string,
+  title?: string,
+  status?: "processing" | "processed",
+  description?: string,
+}
+
+/**
+ * Creates a user document in Firestore.
+ * @return None
+ */
 export const createUser = functions.auth.user().onCreate((user) => {
   const userInfo = {
     uid: user.uid,
@@ -24,6 +37,10 @@ export const createUser = functions.auth.user().onCreate((user) => {
   return;
 });
 
+/**
+ * Generates a signed URL for uploading a video file.
+ * @return The signed URL and name of the file.
+ */
 // https://cloud.google.com/storage/docs/samples/storage-generate-upload-signed-url-v4#storage_generate_upload_signed_url_v4-nodejs
 export const generateUploadUrl = onCall({maxInstances: 1}, async (request) => {
   // Check if the user is authenticated
@@ -49,4 +66,16 @@ export const generateUploadUrl = onCall({maxInstances: 1}, async (request) => {
   });
 
   return {url, fileName};
+});
+
+/**
+ * Gets the metadata of 10 videos from Firestore.
+ */
+export const getVideos = onCall({maxInstances: 1}, async () => {
+  // Get a snapshot of the first 10 videos from the videos collection
+  const snapshot =
+    await firestore.collection(videoCollectionId).limit(10).get();
+
+  // Get the metadata of the videos
+  return snapshot.docs.map((doc) => doc.data());
 });
