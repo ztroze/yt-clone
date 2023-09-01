@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
   User
 } from "firebase/auth";
+import { getFunctions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCWxBrxl2InoMkDrLzJTU-ipCupwhSPRfo",
@@ -16,6 +17,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+export const functions = getFunctions();
 
 /**
  * Signs the user in with a Google popup.
